@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "flutter-qa": {
+      "command": "node",
+      "args": [
+        "tools/flutter-mcp-server/dist/index.js"
+      ],
+      "cwd": ".",
+      "env": {
+        "FLUTTER_PROJECT_ROOT": ".",
+        "FLUTTER_MCP_TIMEOUT_MS": "120000",
+        "FLUTTER_MCP_ALLOW_ADB_MUTATIONS": "0",
+        "FLUTTER_MCP_ALLOW_IOS_MUTATIONS": "0",
+        "FLUTTER_MCP_ALLOW_REMOTE_VM_SERVICE": "0"
+      }
+    }
+  }
+}

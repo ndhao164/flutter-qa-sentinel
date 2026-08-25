@@ -1,0 +1,8 @@
+node_modules/
+.artifacts/
+*.log
+coverage/
+src/
+test/
+tsconfig.json
+package-lock.json

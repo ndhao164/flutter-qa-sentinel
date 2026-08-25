@@ -1,0 +1,61 @@
+# Flutter/Dart generated files
+.dart_tool/
+.packages
+.pub/
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+coverage/
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/ephemeral/
+ios/Flutter/.last_build_id
+android/.gradle/
+android/local.properties
+android/app/debug/
+android/app/profile/
+android/app/release/
+
+# Local agent/client state (keep the shareable MCP example/config explicit).
+.claude/settings.local.json
+.claude/*.local.json
+.claude/.skill-backups/
+.codex/*.local.*
+.agents/.skill-backups/
+.skill-backups/
+
+# Node/package-manager output
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.tgz
+
+# This server writes screenshots and other runtime evidence here.
+.artifacts/
+*.log
+
+# Local secrets and machine-specific configuration
+.env
+.env.*
+!.env.example
+.mcp.json
+.codex/config.toml
+
+# IDE/editor files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.swp

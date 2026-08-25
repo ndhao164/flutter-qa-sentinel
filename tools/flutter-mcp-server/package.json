@@ -1,0 +1,35 @@
+{
+  "name": "flutter-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server that gives an AI agent safe, structured access to Flutter, Dart, Android ADB, and macOS/iOS Xcode tooling.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18.18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "check": "npm run typecheck && npm run build && npm test && npm run test:installer && npm run validate:skill",
+    "test": "node --test --test-concurrency=1 test/smoke.test.mjs test/parser.test.mjs test/ios-adapter.test.mjs",
+    "test:installer": "node --test ../../tools/skill-installer.test.mjs",
+    "test:fixture": "node test/fixture.integration.test.mjs",
+    "validate:skill": "node ../../tools/validate-flutter-qa-skill.mjs",
+    "prepare:codex-skill": "node ../../tools/ensure-codex-skill.mjs",
+    "install:skills": "node ../../tools/install-flutter-qa-skill.mjs --project-root ../.. --scope all --agents all --configure-mcp",
+    "verify:skills": "node ../../tools/install-flutter-qa-skill.mjs --project-root ../.. --scope all --agents all --verify",
+    "pack:check": "npm pack --dry-run --json",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}
