@@ -1,11 +1,15 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   commandForAgent,
   parseAnalyzerOutput,
   parseFlutterTestOutput,
   sanitizeAnalyzerFile,
 } from "../dist/index.js";
+
+const serverRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 test("analyzer parser normalizes machine JSON and keeps structured locations", () => {
   const issues = parseAnalyzerOutput(JSON.stringify({
@@ -38,7 +42,11 @@ test("analyzer parser normalizes machine JSON and keeps structured locations", (
 });
 
 test("analyzer file URI is converted before project-relative redaction", () => {
-  const local = sanitizeAnalyzerFile("file:///E:/skill/tools/flutter-mcp-server/src/index.ts");
+  // Build the local URI from the test's real checkout so this assertion works
+  // on both POSIX runners and Windows, where file:// URI path rules differ.
+  const local = sanitizeAnalyzerFile(
+    pathToFileURL(path.join(serverRoot, "src", "index.ts")).href,
+  );
   assert.equal(local, "src/index.ts");
   assert.equal(sanitizeAnalyzerFile("file:///outside/project.dart"), "[external-file]");
 });
