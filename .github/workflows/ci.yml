@@ -1,0 +1,134 @@
+name: Flutter MCP and QA skill CI
+
+on:
+  push:
+    paths:
+      - "tools/flutter-mcp-server/**"
+      - ".claude/skills/flutter-qa-engineer/**"
+      - ".agents/skills/flutter-qa-engineer/**"
+      - "tools/validate-flutter-qa-skill.mjs"
+      - "tools/ensure-codex-skill.mjs"
+      - "tools/install-flutter-qa-skill.mjs"
+      - "tools/skill-installer.test.mjs"
+      - "docs/AGENT_INSTALLATION.md"
+      - "scripts/**"
+      - ".agents/mcp_config.json"
+      - "examples/flutter_fixture/**"
+      - "README.md"
+      - "SECURITY.md"
+      - "COMPATIBILITY.md"
+      - "CHANGELOG.md"
+      - "LICENSE"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    paths:
+      - "tools/flutter-mcp-server/**"
+      - ".claude/skills/flutter-qa-engineer/**"
+      - ".agents/skills/flutter-qa-engineer/**"
+      - "tools/validate-flutter-qa-skill.mjs"
+      - "tools/ensure-codex-skill.mjs"
+      - "tools/install-flutter-qa-skill.mjs"
+      - "tools/skill-installer.test.mjs"
+      - "docs/AGENT_INSTALLATION.md"
+      - "scripts/**"
+      - ".agents/mcp_config.json"
+      - "examples/flutter_fixture/**"
+      - "README.md"
+      - "SECURITY.md"
+      - "COMPATIBILITY.md"
+      - "CHANGELOG.md"
+      - "LICENSE"
+      - ".github/workflows/ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tools/flutter-mcp-server
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: tools/flutter-mcp-server/package-lock.json
+      - name: Repair symlink-unfriendly Codex checkout
+        working-directory: .
+        run: node tools/ensure-codex-skill.mjs
+      - name: Install dependencies
+        run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Build
+        run: npm run build
+      - name: Verify deterministic generated dist
+        shell: bash
+        run: |
+          set -euo pipefail
+          find dist -type f -print0 | sort -z | xargs -0 sha256sum > "$RUNNER_TEMP/dist-before.sha256"
+          npm run build
+          find dist -type f -print0 | sort -z | xargs -0 sha256sum > "$RUNNER_TEMP/dist-after.sha256"
+          diff -u "$RUNNER_TEMP/dist-before.sha256" "$RUNNER_TEMP/dist-after.sha256"
+          if git ls-files --error-unmatch 'tools/flutter-mcp-server/dist/index.js' >/dev/null 2>&1; then
+            git diff --exit-code -- tools/flutter-mcp-server/dist
+          fi
+      - name: MCP smoke tests
+        run: npm test
+      - name: Cross-agent skill installer tests
+        run: npm run test:installer
+      - name: Validate POSIX installer wrapper
+        working-directory: .
+        shell: bash
+        run: bash -n scripts/install-skill.sh
+      - name: Dependency audit
+        run: npm audit --omit=dev --audit-level=high
+      - name: Full dependency audit
+        run: npm audit --audit-level=moderate
+      - name: Verify package contents
+        run: npm run pack:check
+      - name: Validate Flutter QA skill contract
+        working-directory: .
+        run: node tools/validate-flutter-qa-skill.mjs
+
+  flutter-fixture:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.29.0"
+          channel: stable
+          cache: true
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: tools/flutter-mcp-server/package-lock.json
+      - name: Install MCP dependencies and build
+        working-directory: tools/flutter-mcp-server
+        run: npm ci && npm run build
+      - name: Resolve fixture dependencies
+        working-directory: examples/flutter_fixture
+        run: flutter pub get
+      - name: Analyze fixture
+        working-directory: examples/flutter_fixture
+        run: flutter analyze
+      - name: Check Dart formatting
+        working-directory: examples/flutter_fixture
+        run: dart format --output=none --set-exit-if-changed lib test
+      - name: Run responsive fixture tests
+        working-directory: examples/flutter_fixture
+        run: flutter test
+      - name: Run MCP fixture integration
+        run: npm run test:fixture --prefix tools/flutter-mcp-server

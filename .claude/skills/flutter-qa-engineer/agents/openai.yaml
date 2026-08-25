@@ -1,0 +1,7 @@
+interface:
+  display_name: "Flutter QA Engineer"
+  short_description: "Spec-driven Flutter QA and device testing"
+  default_prompt: "Use $flutter-qa-engineer to run a spec-driven Flutter QA pass, including responsive and authorized device checks."
+
+policy:
+  allow_implicit_invocation: true

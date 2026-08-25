@@ -1,0 +1,19 @@
+name: flutter_qa_fixture
+description: A dependency-free Flutter app used to exercise the Flutter QA skill and MCP server.
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.7.0 <4.0.0'
+  flutter: '>=3.29.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
